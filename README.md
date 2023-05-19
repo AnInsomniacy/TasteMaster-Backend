@@ -1,2 +1,2 @@
 # GenBlogAPI
-“智博客”系统后台，采用django开发
+“智博客”系统后端，采用django开发
