@@ -82,37 +82,29 @@ def show_articles(request):
 
 # 根据文章id获取文章
 def show_article_by_id(request):
-    access_token = request.POST.get('access_token')
     article_id = request.POST.get('article_id')
     if request.method == 'POST':
-        # 校验access_token
-        validate_result = validate_access_jwt_intern(access_token)
-        if validate_result[0]:
-            current_user_str = validate_result[1]
-            # 获取article_id对应的文章,如果不存在，则返回失败
-            try:
-                article = Article.objects.get(article_id=article_id)
-            except:
-                return JsonResponse({'result': '获取文章失败，文章不存在'})
+        try:
+            article = Article.objects.get(article_id=article_id)
+        except:
+            return JsonResponse({'result': '获取文章失败，文章不存在'})
 
             # 进一步获取文章的作者、标题、内容、创建时间、更新时间
-            article_id = article.article_id
-            article_author = article.author_name
-            article_title = article.title
-            article_content = article.content
-            article_create_time = article.create_time
-            article_update_time = article.update_time
+        article_id = article.article_id
+        article_author = article.author_name
+        article_title = article.title
+        article_content = article.content
+        article_create_time = article.create_time
+        article_update_time = article.update_time
 
-            # 整合文章信息为列表
-            article_info = {'文章id': article_id, '文章作者': article_author, '文章标题': article_title,
-                            '图片url': article.image_url,
-                            '文章内容': article_content, '创建时间': article_create_time,
-                            '更新时间': article_update_time}
+        # 整合文章信息为列表
+        article_info = {'文章id': article_id, '文章作者': article_author, '文章标题': article_title,
+                        '图片url': article.image_url,
+                        '文章内容': article_content, '创建时间': article_create_time,
+                        '更新时间': article_update_time}
 
-            # 返回成功，并包含上述列表
-            return JsonResponse({'result': '获取文章成功', '文章信息': article_info})
-        else:
-            return JsonResponse({'result': '失败', 'reason': validate_result[1]})
+        # 返回成功，并包含上述列表
+        return JsonResponse({'result': '获取文章成功', '文章信息': article_info})
     else:
         return JsonResponse({'result': '仅支持POST调用，获取文章失败'})
 

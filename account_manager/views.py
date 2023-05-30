@@ -47,7 +47,7 @@ def follow_user(request):
             return JsonResponse(
                 {'result': '关注用户成功', 'current_user': current_user_str, 'follow_user': follow_user_str})
         else:
-            return JsonResponse({'result': 'access_token校验失败，关注用户失败','reason': validate_result[1]})
+            return JsonResponse({'result': 'access_token校验失败，关注用户失败', 'reason': validate_result[1]})
     else:
         return JsonResponse({'result': '仅支持POST调用，关注用户失败'})
 
@@ -83,7 +83,7 @@ def unfollow_user(request):
             return JsonResponse(
                 {'result': '取消关注用户成功', 'current_user': current_user_str, 'unfollow_user': unfollow_user_str})
         else:
-            return JsonResponse({'result': 'access_token校验失败，取消关注用户失败','reason': validate_result[1]})
+            return JsonResponse({'result': 'access_token校验失败，取消关注用户失败', 'reason': validate_result[1]})
     else:
         return JsonResponse({'result': '仅支持POST调用，取消关注用户失败'})
 
@@ -121,7 +121,7 @@ def show_followers(request):
                                  'followed_user_id_list': followed_user_id_list_str,
                                  'followed_user_name_list': followed_user_name_list_str})
         else:
-            return JsonResponse({'result': 'access_token校验失败，获取关注用户列表失败','reason': validate_result[1]})
+            return JsonResponse({'result': 'access_token校验失败，获取关注用户列表失败', 'reason': validate_result[1]})
 
 
 
@@ -158,7 +158,7 @@ def update_user_info(request):
                  'self_indroduction': self_indroduction})
 
         else:
-            return JsonResponse({'result': 'access_token校验失败，更新用户信息失败','reason': validate_result[1]})
+            return JsonResponse({'result': 'access_token校验失败，更新用户信息失败', 'reason': validate_result[1]})
     else:
         return JsonResponse({'result': '仅支持POST调用，更新用户信息失败'})
 
@@ -202,5 +202,47 @@ def get_current_user_info(request):
 
         else:
             return JsonResponse({'result': '获取用户信息失败', 'reason': validate_result[1]})
+    else:
+        return JsonResponse({'result': '仅支持POST调用，获取用户信息失败'})
+
+
+def get_user_info_by_id(request):
+    user_id = request.POST.get('user_id')
+    if request.method == 'POST':
+        # 根据user_id获取用户
+        try:
+            current_user = User.objects.get(id=user_id)
+        except:
+            return JsonResponse({'result': '获取失败，用户不存在'})
+
+        current_user_id = current_user.id
+
+        # 为current_user新建DataLinker对象，如果已存在，则不新建
+        current_user_data_linker = DataLinker.objects.get_or_create(user_id=current_user_id)[0]
+
+        # 获取用户信息avatar_url和self_introduction
+        avatar_url = current_user_data_linker.avatar_url
+        self_introduction = current_user_data_linker.self_introduction
+
+        # 获取用户的被关注数和关注数
+        followed_user_list = current_user_data_linker.followed_user_list.all()
+        followed_user_num = len(followed_user_list)  # 指定用户关注的用户数
+        follower_user_list = DataLinker.objects.filter(followed_user_list=current_user_id)
+        follower_user_num = len(follower_user_list)  # 指定用户的粉丝数
+
+        # 获取用户发布的文章数
+        article_list = Article.objects.filter(author_id=current_user_id)
+        article_num = len(article_list)
+
+        # 获取用户id
+        user_id = current_user.id
+
+        current_user_str = current_user.username
+
+        # 返回成功，并包含上述内容
+        return JsonResponse({'result': '获取用户信息成功', '当前用户id': user_id, '当前用户名': current_user_str,
+                             '头像链接': avatar_url,
+                             '自我介绍': self_introduction, '关注数': followed_user_num,
+                             '粉丝数': follower_user_num, '文章数': article_num})
     else:
         return JsonResponse({'result': '仅支持POST调用，获取用户信息失败'})
