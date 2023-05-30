@@ -10,6 +10,7 @@ def create_article(request):
     access_token = request.POST.get('access_token')
     article_title = request.POST.get('article_title')
     article_content = request.POST.get('article_content')
+    image_url = request.POST.get('image_url')
     if request.method == 'POST':
         # 校验access_token
         validate_result = validate_access_jwt_intern(access_token)
@@ -22,7 +23,7 @@ def create_article(request):
 
             # 建立Article对象
             article = Article(author_id=current_user_id, title=article_title, content=article_content,
-                              author_name=current_user_str)
+                              author_name=current_user_str, image_url=image_url)
             article.save()
 
             article_id = article.article_id
@@ -33,13 +34,14 @@ def create_article(request):
 
             # 返回JsonResponse，包含文章的标题，作者和编号
             return JsonResponse({'result': 'success', '文章标题:': article_title, '文章作者:': current_user_str,
-                                 '文章编号:': article_id})
+                                 '文章编号:': article_id, '图片url': image_url})
         else:
             return JsonResponse({'result': '失败', 'reason': validate_result[1]})
     else:
         return JsonResponse({'result': 'fail', 'reason': '请求方式错误'})
 
 
+# 获取单个用户的文章列表
 def show_articles(request):
     access_token = request.POST.get('access_token')
     if request.method == 'POST':
@@ -62,7 +64,8 @@ def show_articles(request):
             article_list_str = []
             for article in article_list:
                 article_list_str.append(
-                    {'文章id': article.article_id, '文章标题': article.title, '文章内容': article.content,
+                    {'文章id': article.article_id, '文章标题': article.title, '图片url': article.image_url,
+                     '文章内容': article.content,
                      '文章作者': article.author_name,
                      '创建时间': article.create_time, '更新时间': article.update_time})
 
@@ -77,6 +80,7 @@ def show_articles(request):
         return JsonResponse({'result': '仅支持POST调用，获取文章列表失败'})
 
 
+# 根据文章id获取文章
 def show_article_by_id(request):
     access_token = request.POST.get('access_token')
     article_id = request.POST.get('article_id')
@@ -101,6 +105,7 @@ def show_article_by_id(request):
 
             # 整合文章信息为列表
             article_info = {'文章id': article_id, '文章作者': article_author, '文章标题': article_title,
+                            '图片url': article.image_url,
                             '文章内容': article_content, '创建时间': article_create_time,
                             '更新时间': article_update_time}
 
@@ -112,6 +117,7 @@ def show_article_by_id(request):
         return JsonResponse({'result': '仅支持POST调用，获取文章失败'})
 
 
+# 随机返回十篇文章
 def get_random_ten_articles(request):
     # 随即返回Article表中的十篇文章
     # GET方法
@@ -122,7 +128,8 @@ def get_random_ten_articles(request):
         article_list_str = []
         for article in article_list:
             article_list_str.append(
-                {'文章id': article.article_id, '文章标题': article.title, '文章内容': article.content,
+                {'文章id': article.article_id, '文章标题': article.title, '图片url': article.image_url,
+                 '文章内容': article.content,
                  '文章作者': article.author_name,
                  '创建时间': article.create_time, '更新时间': article.update_time})
         # 返回成功，同时返回上述列表
@@ -132,6 +139,7 @@ def get_random_ten_articles(request):
         return JsonResponse({'result': '仅支持GET调用，获取文章列表失败'})
 
 
+# 根据文章id修改文章
 def update_article_by_id(request):
     # 根据文章编号更新文章
     access_token = request.POST.get('access_token')
@@ -139,6 +147,7 @@ def update_article_by_id(request):
     article_id = request.POST.get('article_id')
     article_title = request.POST.get('article_title')
     article_content = request.POST.get('article_content')
+    image_url = request.POST.get('image_url')
     if request.method == 'POST':
         # 判断文章是否存在
         try:
@@ -151,6 +160,7 @@ def update_article_by_id(request):
         # 更新文章
         article.title = article_title
         article.content = article_content
+        article.image_url = image_url
         article.save()
         return JsonResponse({'result': '更新文章成功'})
     else:

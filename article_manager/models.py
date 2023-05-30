@@ -8,6 +8,7 @@ class Article(models.Model):
     author_id = models.IntegerField()
     title = models.CharField(max_length=100)
     content = models.TextField()
+    image_url = models.CharField(max_length=100)
     create_time = models.DateTimeField(auto_now=True)
     update_time = models.DateTimeField(auto_now=True)
 
