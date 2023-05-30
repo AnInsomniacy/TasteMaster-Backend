@@ -98,7 +98,8 @@ def show_article_by_id(request):
         article_update_time = article.update_time
 
         # 整合文章信息为列表
-        article_info = {'文章id': article_id, '文章作者': article_author, '文章标题': article_title,
+        article_info = {'文章id': article_id, '作者id': article.author_id, '文章作者': article_author,
+                        '文章标题': article_title,
                         '图片url': article.image_url,
                         '文章内容': article_content, '创建时间': article_create_time,
                         '更新时间': article_update_time}
