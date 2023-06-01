@@ -24,28 +24,31 @@ def follow_user(request):
         # 校验access_token
         validate_result = validate_access_jwt_intern(access_token)
         if validate_result[0]:
-            current_user_str = validate_result[1]
+            try:
+                current_user_str = validate_result[1]
 
-            current_user = User.objects.get(username=current_user_str)
-            follow_user = User.objects.get(username=follow_user_str)
+                current_user = User.objects.get(username=current_user_str)
+                follow_user = User.objects.get(username=follow_user_str)
 
-            current_user_id = current_user.id
-            follow_user_id = follow_user.id
+                current_user_id = current_user.id
+                follow_user_id = follow_user.id
 
-            # 为current_user新建DataLinker对象，如果已存在，则不新建
-            DataLinker.objects.get_or_create(user_id=current_user_id)
+                # 为current_user新建DataLinker对象，如果已存在，则不新建
+                DataLinker.objects.get_or_create(user_id=current_user_id)
 
-            # 为follow_user新建DataLinker对象，如果已存在，则不新建
-            DataLinker.objects.get_or_create(user_id=follow_user_id)
+                # 为follow_user新建DataLinker对象，如果已存在，则不新建
+                DataLinker.objects.get_or_create(user_id=follow_user_id)
 
-            # 获取current_user的DataLinker对象
-            current_user_data_linker = DataLinker.objects.get(user_id=current_user_id)
-            current_user_data_linker.followed_user_list.add(follow_user_id)
-            current_user_data_linker.save()
+                # 获取current_user的DataLinker对象
+                current_user_data_linker = DataLinker.objects.get(user_id=current_user_id)
+                current_user_data_linker.followed_user_list.add(follow_user_id)
+                current_user_data_linker.save()
 
-            # 返回成功，并且注明谁关注了谁
-            return JsonResponse(
-                {'result': '关注用户成功', 'current_user': current_user_str, 'follow_user': follow_user_str})
+                # 返回成功，并且注明谁关注了谁
+                return JsonResponse(
+                    {'result': '关注用户成功', 'current_user': current_user_str, 'follow_user': follow_user_str})
+            except Exception as e:
+                return JsonResponse({'result': '关注用户失败', 'reason': '用户不存在'})
         else:
             return JsonResponse({'result': 'access_token校验失败，关注用户失败', 'reason': validate_result[1]})
     else:
@@ -60,28 +63,32 @@ def unfollow_user(request):
         # 校验access_token
         validate_result = validate_access_jwt_intern(access_token)
         if validate_result[0]:
-            current_user_str = validate_result[1]
+            try:
+                current_user_str = validate_result[1]
 
-            current_user = User.objects.get(username=current_user_str)
-            unfollow_user = User.objects.get(username=unfollow_user_str)
+                current_user = User.objects.get(username=current_user_str)
+                unfollow_user = User.objects.get(username=unfollow_user_str)
 
-            current_user_id = current_user.id
-            unfollow_user_id = unfollow_user.id
+                current_user_id = current_user.id
+                unfollow_user_id = unfollow_user.id
 
-            # 为current_user新建DataLinker对象，如果已存在，则不新建
-            DataLinker.objects.get_or_create(user_id=current_user_id)
+                # 为current_user新建DataLinker对象，如果已存在，则不新建
+                DataLinker.objects.get_or_create(user_id=current_user_id)
 
-            # 为unfollow_user新建DataLinker对象，如果已存在，则不新建
-            DataLinker.objects.get_or_create(user_id=unfollow_user_id)
+                # 为unfollow_user新建DataLinker对象，如果已存在，则不新建
+                DataLinker.objects.get_or_create(user_id=unfollow_user_id)
 
-            # 获取current_user的DataLinker对象
-            current_user_data_linker = DataLinker.objects.get(user_id=current_user_id)
-            current_user_data_linker.followed_user_list.remove(unfollow_user_id)
-            current_user_data_linker.save()
+                # 获取current_user的DataLinker对象
+                current_user_data_linker = DataLinker.objects.get(user_id=current_user_id)
+                current_user_data_linker.followed_user_list.remove(unfollow_user_id)
+                current_user_data_linker.save()
 
-            # 返回成功，并且注明谁取消关注了谁
-            return JsonResponse(
-                {'result': '取消关注用户成功', 'current_user': current_user_str, 'unfollow_user': unfollow_user_str})
+                # 返回成功，并且注明谁取消关注了谁
+                return JsonResponse(
+                    {'result': '取消关注用户成功', 'current_user': current_user_str,
+                     'unfollow_user': unfollow_user_str})
+            except Exception as e:
+                return JsonResponse({'result': '取消关注用户失败', 'reason': '用户不存在'})
         else:
             return JsonResponse({'result': 'access_token校验失败，取消关注用户失败', 'reason': validate_result[1]})
     else:
@@ -246,3 +253,37 @@ def get_user_info_by_id(request):
                              '粉丝数': follower_user_num, '文章数': article_num})
     else:
         return JsonResponse({'result': '仅支持POST调用，获取用户信息失败'})
+
+
+# 判定一个用户A是否关注了另一个用户B
+def is_followed(request):
+    if request.method == 'POST':
+        user_A_id = request.POST.get('user_A_id')
+        user_B_id = request.POST.get('user_B_id')
+        try:
+            # 为current_user新建DataLinker对象，如果已存在，则不新建
+            DataLinker.objects.get_or_create(user_id=user_A_id)
+
+            # 获取current_user的DataLinker对象
+            current_user_data_linker = DataLinker.objects.get(user_id=user_A_id)
+            followed_user_list = current_user_data_linker.followed_user_list.all()
+
+            # 把followed_user_list转换成一个新建的列表，列表里的元素是followed_user_list里的每个元素的username
+            followed_user_id_list_str = []
+            for followed_user in followed_user_list:
+                followed_user_id_list_str.append(followed_user.user_id)
+
+            # 把user_B_id转换成int类型
+            user_B_id = int(user_B_id)
+
+            if user_B_id in followed_user_id_list_str:
+                return JsonResponse(
+                    {'result': '已关注', '状态': '用户' + str(user_A_id) + '关注了用户' + str(user_B_id)})
+            else:
+                return JsonResponse(
+                    {'result': '未关注', '状态': '用户' + str(user_A_id) + '没有关注用户' + str(user_B_id)})
+
+        except:
+            return JsonResponse({'result': '用户不存在'})
+    else:
+        return JsonResponse({'result': '仅支持POST调用'})
