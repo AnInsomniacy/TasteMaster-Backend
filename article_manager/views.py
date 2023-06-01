@@ -43,38 +43,37 @@ def create_article(request):
 
 # 获取单个用户的文章列表
 def show_articles(request):
-    access_token = request.POST.get('access_token')
+    user_id = request.POST.get('user_id')
     if request.method == 'POST':
-        # 校验access_token
-        validate_result = validate_access_jwt_intern(access_token)
-        if validate_result[0]:
-            current_user_str = validate_result[1]
+        # 根据user_id获取user对象
+        try:
+            user = User.objects.get(id=user_id)
+        except:
+            return JsonResponse({'result': '获取文章列表失败，用户不存在'})
 
-            current_user = User.objects.get(username=current_user_str)
-            current_user_id = current_user.id
+        current_user = User.objects.get(id=user_id)
+        current_user_id = current_user.id
 
-            # 为current_user新建DataLinker对象，如果已存在，则不新建
-            DataLinker.objects.get_or_create(user_id=current_user_id)
+        # 为current_user新建DataLinker对象，如果已存在，则不新建
+        DataLinker.objects.get_or_create(user_id=current_user_id)
 
-            # 获取current_user的DataLinker对象
-            current_user_data_linker = DataLinker.objects.get(user_id=current_user_id)
+        # 获取current_user的DataLinker对象
+        current_user_data_linker = DataLinker.objects.get(user_id=current_user_id)
 
-            # 把article_list转换成一个新建的列表，列表里的元素包含模型Article里的title、content、author、create_time、update_time
-            article_list = current_user_data_linker.article_list.all()
-            article_list_str = []
-            for article in article_list:
-                article_list_str.append(
-                    {'文章id': article.article_id, '文章标题': article.title, '图片url': article.image_url,
-                     '文章内容': article.content,
-                     '文章作者': article.author_name,
-                     '创建时间': article.create_time, '更新时间': article.update_time})
+        # 把article_list转换成一个新建的列表，列表里的元素包含模型Article里的title、content、author、create_time、update_time
+        article_list = current_user_data_linker.article_list.all()
+        article_list_str = []
+        for article in article_list:
+            article_list_str.append(
+                {'文章id': article.article_id, '文章标题': article.title, '图片url': article.image_url,
+                 '文章内容': article.content,
+                 '文章作者': article.author_name,
+                 '创建时间': article.create_time, '更新时间': article.update_time})
 
-            # 返回成功，并且说明文章数目
-            return JsonResponse(
-                {'result': '获取文章列表成功', 'current_user': current_user_str, 'article_count': len(article_list_str),
-                 'article_list': article_list_str})
-        else:
-            return JsonResponse({'result': '失败', 'reason': validate_result[1]})
+        # 返回成功，并且说明文章数目
+        return JsonResponse(
+            {'result': '获取文章列表成功', '用户id': user.id, '用户名': user.username, '文章数': len(article_list_str),
+             '文章列表': article_list_str})
 
     else:
         return JsonResponse({'result': '仅支持POST调用，获取文章列表失败'})
