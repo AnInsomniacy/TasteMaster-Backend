@@ -178,3 +178,29 @@ def delete_article_by_id(request):
         return JsonResponse({'result': '删除文章成功'})
     else:
         return JsonResponse({'result': '仅支持POST调用，删除文章失败'})
+
+
+# 根据关键字搜索文章，关键字只匹配标题，匹配标题的一部分或者全部都行
+def search_article_by_keyword(request):
+    # 仅支持POST调用
+    if request.method == 'POST':
+        # 获取关键字
+        keyword = request.POST.get('keyword')
+        # 获取文章列表，匹配标题的一部分或者全部都行
+        try:
+            article_list = Article.objects.filter(title__contains=keyword)
+        except:
+            return JsonResponse({'result': '获取文章列表失败'})
+        article_list_str = []
+        for article in article_list:
+            article_list_str.append(
+                {'文章id': article.article_id, '文章标题': article.title, '作者id': article.author_id,
+                 '文章作者': article.author_name,
+                 '图片url': article.image_url,
+                 '文章内容': article.content,
+                 '创建时间': article.create_time, '更新时间': article.update_time})
+        # 返回成功，并且说明文章数目
+        return JsonResponse(
+            {'result': '获取文章列表成功', '文章数': len(article_list_str), '文章列表': article_list_str})
+    else:
+        return JsonResponse({'result': '仅支持POST调用，获取文章列表失败'})
