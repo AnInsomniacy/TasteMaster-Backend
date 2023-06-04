@@ -19,7 +19,7 @@ def get_user_list(request, page_begin, page_end):
 @csrf_exempt
 def follow_user(request):
     access_token = request.POST.get('access_token')
-    follow_user_str = request.POST.get('follow_user')
+    follow_user_id = request.POST.get('follow_user_id')
     if request.method == 'POST':
         # 校验access_token
         validate_result = validate_access_jwt_intern(access_token)
@@ -28,7 +28,7 @@ def follow_user(request):
                 current_user_str = validate_result[1]
 
                 current_user = User.objects.get(username=current_user_str)
-                follow_user = User.objects.get(username=follow_user_str)
+                follow_user = User.objects.get(id=follow_user_id)
 
                 current_user_id = current_user.id
                 follow_user_id = follow_user.id
@@ -46,7 +46,7 @@ def follow_user(request):
 
                 # 返回成功，并且注明谁关注了谁
                 return JsonResponse(
-                    {'result': '关注用户成功', 'current_user': current_user_str, 'follow_user': follow_user_str})
+                    {'result': '关注用户成功', 'current_user': current_user_str, 'follow_user': follow_user_id})
             except Exception as e:
                 return JsonResponse({'result': '关注用户失败', 'reason': '用户不存在'})
         else:
@@ -58,7 +58,7 @@ def follow_user(request):
 @csrf_exempt
 def unfollow_user(request):
     access_token = request.POST.get('access_token')
-    unfollow_user_str = request.POST.get('unfollow_user')
+    unfollow_user_id = request.POST.get('unfollow_user_id')
     if request.method == 'POST':
         # 校验access_token
         validate_result = validate_access_jwt_intern(access_token)
@@ -67,7 +67,7 @@ def unfollow_user(request):
                 current_user_str = validate_result[1]
 
                 current_user = User.objects.get(username=current_user_str)
-                unfollow_user = User.objects.get(username=unfollow_user_str)
+                unfollow_user = User.objects.get(id=unfollow_user_id)
 
                 current_user_id = current_user.id
                 unfollow_user_id = unfollow_user.id
@@ -86,7 +86,7 @@ def unfollow_user(request):
                 # 返回成功，并且注明谁取消关注了谁
                 return JsonResponse(
                     {'result': '取消关注用户成功', 'current_user': current_user_str,
-                     'unfollow_user': unfollow_user_str})
+                     'unfollow_user': unfollow_user_id})
             except Exception as e:
                 return JsonResponse({'result': '取消关注用户失败', 'reason': '用户不存在'})
         else:
@@ -255,17 +255,27 @@ def get_user_info_by_id(request):
         return JsonResponse({'result': '仅支持POST调用，获取用户信息失败'})
 
 
-# 判定一个用户A是否关注了另一个用户B
+# 判定current_user是否关注了user_id
 def is_followed(request):
     if request.method == 'POST':
-        user_A_id = request.POST.get('user_A_id')
-        user_B_id = request.POST.get('user_B_id')
-        try:
+        access_token = request.POST.get('access_token')
+        user_id = request.POST.get('user_id')
+        # 校验access_token
+        validate_result = validate_access_jwt_intern(access_token)
+        if validate_result[0]:
+            # 获取当前用户
+            current_user_str = validate_result[1]
+            current_user = User.objects.get(username=current_user_str)
+            current_user_id = current_user.id
+
+            # 获取当前用户的DataLinker对象
+            current_user_data_linker = DataLinker.objects.get_or_create(user_id=current_user_id)[0]
+
             # 为current_user新建DataLinker对象，如果已存在，则不新建
-            DataLinker.objects.get_or_create(user_id=user_A_id)
+            DataLinker.objects.get_or_create(user_id=current_user_id)
 
             # 获取current_user的DataLinker对象
-            current_user_data_linker = DataLinker.objects.get(user_id=user_A_id)
+            current_user_data_linker = DataLinker.objects.get(user_id=current_user_id)
             followed_user_list = current_user_data_linker.followed_user_list.all()
 
             # 把followed_user_list转换成一个新建的列表，列表里的元素是followed_user_list里的每个元素的username
@@ -273,17 +283,23 @@ def is_followed(request):
             for followed_user in followed_user_list:
                 followed_user_id_list_str.append(followed_user.user_id)
 
-            # 把user_B_id转换成int类型
-            user_B_id = int(user_B_id)
+            # 根据followed_user_id_list_str，获取username
+            followed_user_name_list_str = []
+            for followed_user_id in followed_user_id_list_str:
+                followed_user_name_list_str.append(User.objects.get(id=followed_user_id).username)
 
-            if user_B_id in followed_user_id_list_str:
-                return JsonResponse(
-                    {'result': '已关注', '状态': '用户' + str(user_A_id) + '关注了用户' + str(user_B_id)})
+            # 判断user_id是否在followed_user_name_list_str里
+            user_id=int(user_id)
+            if user_id in followed_user_id_list_str:
+                return JsonResponse({'isfollowed': True})
             else:
-                return JsonResponse(
-                    {'result': '未关注', '状态': '用户' + str(user_A_id) + '没有关注用户' + str(user_B_id)})
-
-        except:
-            return JsonResponse({'result': '用户不存在'})
+                return JsonResponse({'isfollowed': False})
+        else:
+            return JsonResponse({'result': '获取用户信息失败', 'reason': validate_result[1]})
     else:
-        return JsonResponse({'result': '仅支持POST调用'})
+        return JsonResponse({'result': '仅支持POST调用，获取用户信息失败'})
+
+
+
+
+
