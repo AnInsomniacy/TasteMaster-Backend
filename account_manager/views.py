@@ -94,48 +94,6 @@ def unfollow_user(request):
     else:
         return JsonResponse({'result': '仅支持POST调用，取消关注用户失败'})
 
-
-def show_followers(request):
-    access_token = request.POST.get('access_token')
-    if request.method == 'POST':
-        # 校验access_token
-        validate_result = validate_access_jwt_intern(access_token)
-        if validate_result[0]:
-            current_user_str = validate_result[1]
-
-            current_user = User.objects.get(username=current_user_str)
-            current_user_id = current_user.id
-
-            # 为current_user新建DataLinker对象，如果已存在，则不新建
-            DataLinker.objects.get_or_create(user_id=current_user_id)
-
-            # 获取current_user的DataLinker对象
-            current_user_data_linker = DataLinker.objects.get(user_id=current_user_id)
-            followed_user_list = current_user_data_linker.followed_user_list.all()
-
-            # 把followed_user_list转换成一个新建的列表，列表里的元素是followed_user_list里的每个元素的username
-            followed_user_id_list_str = []
-            for followed_user in followed_user_list:
-                followed_user_id_list_str.append(followed_user.user_id)
-
-            # 根据followed_user_id_list_str，获取username
-            followed_user_name_list_str = []
-            for followed_user_id in followed_user_id_list_str:
-                followed_user_name_list_str.append(User.objects.get(id=followed_user_id).username)
-
-            # 返回成功，并且注明谁关注了谁
-            return JsonResponse({'result': '获取关注用户列表成功', 'current_user': current_user_str,
-                                 'followed_user_id_list': followed_user_id_list_str,
-                                 'followed_user_name_list': followed_user_name_list_str})
-        else:
-            return JsonResponse({'result': 'access_token校验失败，获取关注用户列表失败', 'reason': validate_result[1]})
-
-
-
-    else:
-        return JsonResponse({'result': '仅支持POST调用，获取关注用户列表失败'})
-
-
 def update_user_info(request):
     access_token = request.POST.get('access_token')
     if request.method == 'POST':
@@ -211,6 +169,64 @@ def get_current_user_info(request):
             return JsonResponse({'result': '获取用户信息失败', 'reason': validate_result[1]})
     else:
         return JsonResponse({'result': '仅支持POST调用，获取用户信息失败'})
+
+
+def show_followers(request):
+    access_token = request.POST.get('access_token')
+    if request.method == 'POST':
+        # 校验access_token
+        validate_result = validate_access_jwt_intern(access_token)
+        if validate_result[0]:
+            current_user_str = validate_result[1]
+
+            current_user = User.objects.get(username=current_user_str)
+            current_user_id = current_user.id
+
+            # 为current_user新建DataLinker对象，如果已存在，则不新建
+            DataLinker.objects.get_or_create(user_id=current_user_id)
+
+            # 获取current_user的DataLinker对象
+            current_user_data_linker = DataLinker.objects.get(user_id=current_user_id)
+            followed_user_list = current_user_data_linker.followed_user_list.all()
+
+            # 把followed_user_list转换成一个新建的列表，列表里的元素是followed_user_list里的每个元素的username
+            followed_user_id_list_str = []
+            for followed_user in followed_user_list:
+                followed_user_id_list_str.append(followed_user.user_id)
+
+            # 根据followed_user_id_list_str，获取用户的avatar_url、self_introduction、被关注数和关注数、获取用户发布的文章数和用户名
+            followed_user_info_list = []
+            for followed_user_id in followed_user_id_list_str:
+                followed_user_data_linker = DataLinker.objects.get(user_id=followed_user_id)
+                #用User表获取username
+                followed_user_username = User.objects.get(id=followed_user_id).username
+                followed_user_avatar_url = followed_user_data_linker.avatar_url
+                followed_user_self_introduction = followed_user_data_linker.self_introduction
+                followed_user_followed_user_list = followed_user_data_linker.followed_user_list.all()
+                followed_user_followed_user_num = len(followed_user_followed_user_list)  # 指定用户关注的用户数
+                followed_user_follower_user_list = DataLinker.objects.filter(followed_user_list=followed_user_id)
+                followed_user_follower_user_num = len(followed_user_follower_user_list)  # 指定用户的粉丝数
+                followed_user_article_list = Article.objects.filter(author_id=followed_user_id)
+                followed_user_article_num = len(followed_user_article_list)
+                followed_user_info_list.append({'当前用户名': followed_user_username, '当前用户id': followed_user_id,
+                                                '头像链接': followed_user_avatar_url,
+                                                '自我介绍': followed_user_self_introduction,
+                                                '关注数': followed_user_followed_user_num,
+                                                '粉丝数': followed_user_follower_user_num,
+                                                '文章数': followed_user_article_num})
+                # 返回成功，并包含上述内容
+            return JsonResponse({'result': '获取关注用户列表成功', 'followed_user_info_list': followed_user_info_list})
+
+            # 返回成功，并包含上述内容
+            return JsonResponse({'result': '获取关注用户列表成功', 'followed_user_info_list': followed_user_info_list})
+
+        else:
+            return JsonResponse({'result': 'access_token校验失败，获取关注用户列表失败', 'reason': validate_result[1]})
+
+
+
+    else:
+        return JsonResponse({'result': '仅支持POST调用，获取关注用户列表失败'})
 
 
 def get_user_info_by_id(request):
