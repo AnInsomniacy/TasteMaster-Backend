@@ -39,3 +39,7 @@ def gpt_responder_stream(user_content):
 
     )
     return response
+
+# response = gpt_responder_stream('从1数到100')
+# for i in response:
+#     print(i)
