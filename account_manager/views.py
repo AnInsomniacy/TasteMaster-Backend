@@ -263,6 +263,56 @@ def get_user_info_by_id(request):
         return JsonResponse({'result': '仅支持POST调用，获取用户信息失败'})
 
 
+# 输入一个数字user_num，返回user_num个用户的信息，按照粉丝数排序
+def get_user_info_by_follower_num(request):
+    # 仅支持POST调用
+    if request.method == 'POST':
+        # 获取数字n
+        user_num = request.POST.get('user_num')
+        # 通过数据库指令，获取user_num个用户的信息，按照最后登录时间排序
+        user_num=int(user_num)
+        user_list = User.objects.order_by('-last_login')[:user_num]
+        #转成user_id_list
+        user_id_list = []
+        for user in user_list:
+            user_id_list.append(user.id)
+
+        # 获取用户的avatar_url、self_introduction、被关注数和关注数、获取用户发布的文章数和用户名
+        user_info_list = []
+        for user_id in user_id_list:
+            # 为current_user新建DataLinker对象，如果已存在，则不新建
+            current_user_data_linker = DataLinker.objects.get_or_create(user_id=user_id)[0]
+
+            # 获取用户信息avatar_url和self_introduction
+            avatar_url = current_user_data_linker.avatar_url
+            self_introduction = current_user_data_linker.self_introduction
+
+            # 获取用户的被关注数和关注数
+            followed_user_list = current_user_data_linker.followed_user_list.all()
+            followed_user_num = len(followed_user_list)
+
+            follower_user_list = DataLinker.objects.filter(followed_user_list=user_id)
+            follower_user_num = len(follower_user_list)
+
+            # 获取用户发布的文章数
+            article_list = Article.objects.filter(author_id=user_id)
+            article_num = len(article_list)
+
+            # 获取用户名
+            current_user = User.objects.get(id=user_id)
+            current_user_str = current_user.username
+
+            user_info_list.append({'当前用户名': current_user_str, '当前用户id': user_id, '头像链接': avatar_url,
+                                      '自我介绍': self_introduction, '关注数': followed_user_num,
+                                        '粉丝数': follower_user_num, '文章数': article_num})
+
+
+        # 返回成功，并包含上述内容
+        return JsonResponse({'result': '获取用户信息成功', 'user_info_list': user_info_list})
+    else:
+        return JsonResponse({'result': '仅支持POST调用，获取用户信息失败'})
+
+
 # 判定current_user是否关注了user_id
 def is_followed(request):
     if request.method == 'POST':

@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path
 
 from account_manager.views import get_user_list, follow_user, unfollow_user, show_followers, update_user_info, \
-    get_current_user_info, get_user_info_by_id, is_followed, modify_user_info
+    get_current_user_info, get_user_info_by_id, is_followed, modify_user_info, get_user_info_by_follower_num
 from article_manager.views import create_article, show_articles, show_article_by_id, get_random_ten_articles, \
     update_article_by_id, delete_article_by_id, search_article_by_keyword
 from chatGPT_controller.views import gpt_for_chat
@@ -50,4 +50,5 @@ urlpatterns = [
     path('api/is_followed/', is_followed, name='is_followed'),
     path('api/search_article_by_keyword/', search_article_by_keyword, name='search_article_by_keyword'),
     path('api/modify_user_info/',modify_user_info,name='modify_user_info'),
+    path('api/get_user_info_by_follower_num/',get_user_info_by_follower_num,name='get_user_info_by_follower_num'),
 ]
