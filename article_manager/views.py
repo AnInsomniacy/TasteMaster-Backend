@@ -181,7 +181,7 @@ def delete_article_by_id(request):
         return JsonResponse({'result': '仅支持POST调用，删除文章失败'})
 
 
-# 根据关键字搜索文章，关键字只匹配标题，匹配标题或作者的一部分或者全部都行
+# 根据关键字搜索文章，关键字匹配标题或作者的一部分或者全部都行
 def search_article_by_keyword(request):
     # 仅支持POST调用
     if request.method == 'POST':
