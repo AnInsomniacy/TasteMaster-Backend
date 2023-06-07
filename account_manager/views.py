@@ -33,6 +33,9 @@ def follow_user(request):
                 current_user_id = current_user.id
                 follow_user_id = follow_user.id
 
+                if current_user_id == follow_user_id:
+                    return JsonResponse({'result': '不能关注自己噢', 'reason': '执行了自我关注'})
+
                 # 为current_user新建DataLinker对象，如果已存在，则不新建
                 DataLinker.objects.get_or_create(user_id=current_user_id)
 
