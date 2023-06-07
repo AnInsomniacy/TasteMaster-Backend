@@ -187,9 +187,9 @@ def search_article_by_keyword(request):
     if request.method == 'POST':
         # 获取关键字
         keyword = request.POST.get('keyword')
-        # 获取文章列表，匹配标题或author_name的一部分或者全部
+        # 获取文章列表，匹配标题或author_name的一部分或者全部，不区分大小写
         try:
-            article_list = Article.objects.filter(Q(title__contains=keyword) | Q(author_name__contains=keyword))
+            article_list = Article.objects.filter(Q(title__icontains=keyword) | Q(author_name__icontains=keyword))
         except:
             return JsonResponse({'result': '获取文章列表失败'})
         article_list_str = []
