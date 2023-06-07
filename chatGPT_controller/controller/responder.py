@@ -27,6 +27,8 @@ def gpt_responder(user_content):
 
     return result_str
 
+# response=gpt_responder('hello')
+# print(response)
 
 # 处理超过1000字的gpt函数，每次处理1000个字符，循环调用上面的gpt_responder函数，最后拼接成一个字符串
 def gpt_responder_for_long_text(user_content):
