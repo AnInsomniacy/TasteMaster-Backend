@@ -3,7 +3,7 @@ import json
 import openai
 import requests
 
-openai.api_key = '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'
+openai.api_key = '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'
 openai.api_base = 'https://service-i501wcby-1318284291.jp.apigw.tencentcs.com/v1'
 
 
