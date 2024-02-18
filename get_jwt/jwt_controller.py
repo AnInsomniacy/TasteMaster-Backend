@@ -1,6 +1,6 @@
 import jwt
 
-from GenBlogAPI.settings import SECRET_KEY
+from TasteMasterAPI.settings import SECRET_KEY
 
 
 def validate_access_jwt_intern(access_token):

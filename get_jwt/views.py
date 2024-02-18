@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timedelta
 
-from GenBlogAPI.settings import SECRET_KEY
+from TasteMasterAPI.settings import SECRET_KEY
 
 
 @csrf_exempt
