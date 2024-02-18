@@ -1,2 +1,2 @@
-# GenBlogAPI
-“智博客”系统后端，采用django开发
+# TasteMaster Backend
+“味觉大师”系统后端，采用django开发
