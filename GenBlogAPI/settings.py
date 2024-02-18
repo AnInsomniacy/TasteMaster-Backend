@@ -89,10 +89,10 @@ WSGI_APPLICATION = 'GenBlogAPI.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',  # 数据库引擎
-        'NAME': 'genblog',  # 数据库名称
+        'NAME': 'TasteMaster',  # 数据库名称
         'HOST': '127.0.0.1',  # 数据库地址，本机 ip 地址 127.0.0.1
         'PORT': 3306,  # 端口
-        'USER': '1326555262',  # 数据库用户名
+        'USER': 'root',  # 数据库用户名
         'PASSWORD': 'qq1968904856',  # 数据库密码
     }
 }
