@@ -12,6 +12,7 @@ from get_jwt.views import get_jwt_token
 def login(request):
     username = request.POST.get('username')
     password = request.POST.get('password')
+    print(username, password)
     # 验证用户名和密码是否正确
     user = auth.authenticate(username=username, password=password)
     if user is not None:
@@ -24,7 +25,7 @@ def login(request):
         user.last_login = current_time
         user.save()
         return JsonResponse(
-            {'result': '登录成功，生成jwt令牌', 'access_token': access_token, 'refresh_token': refresh_token})
+            {'result': True, 'access_token': access_token, 'refresh_token': refresh_token})
     else:
         # 验证失败，返回None
-        return JsonResponse({'result': '登录失败，拒绝生成jwt令牌', 'access_token': None, 'refresh_token': None})
+        return JsonResponse({'result': False, 'access_token': None, 'refresh_token': None})

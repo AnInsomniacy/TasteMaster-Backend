@@ -164,10 +164,10 @@ def get_current_user_info(request):
             user_id = current_user.id
 
             # 返回成功，并包含上述内容
-            return JsonResponse({'result': '获取用户信息成功', '当前用户id': user_id, '当前用户名': current_user_str,
-                                 '头像链接': avatar_url,
-                                 '自我介绍': self_introduction, '关注数': followed_user_num,
-                                 '粉丝数': follower_user_num, '文章数': article_num})
+            return JsonResponse({'result': '获取用户信息成功', 'user_id': user_id, 'username': current_user_str,
+                                 'avatarUrl': avatar_url,
+                                 'selfIntroduction': self_introduction, 'followerNum': followed_user_num,
+                                 'fanNum': follower_user_num, 'articleNum': article_num})
 
         else:
             return JsonResponse({'result': '获取用户信息失败', 'reason': validate_result[1]})
@@ -211,13 +211,14 @@ def show_followers(request):
             followed_user_follower_user_num = len(followed_user_follower_user_list)  # 指定用户的粉丝数
             followed_user_article_list = Article.objects.filter(author_id=followed_user_id)
             followed_user_article_num = len(followed_user_article_list)
-            followed_user_info_list.append({'当前用户名': followed_user_username, '当前用户id': followed_user_id,
-                                            '头像链接': followed_user_avatar_url,
-                                            '自我介绍': followed_user_self_introduction,
-                                            '关注数': followed_user_followed_user_num,
-                                            '粉丝数': followed_user_follower_user_num,
-                                            '文章数': followed_user_article_num})
+            followed_user_info_list.append({'currentUsername': followed_user_username, 'currentUserId': followed_user_id,
+                                            'avatarUrl': followed_user_avatar_url,
+                                            'selfIntroduction': followed_user_self_introduction,
+                                            'followerNum': followed_user_followed_user_num,
+                                            'fanNum': followed_user_follower_user_num,
+                                            'articleNum': followed_user_article_num})
         # 返回成功，并包含上述内容
+        print("获取成功")
         return JsonResponse({'result': '获取关注用户列表成功', 'followed_user_info_list': followed_user_info_list})
 
     else:
@@ -259,14 +260,15 @@ def get_fans(request):
             follower_user_follower_user_num = len(follower_user_follower_user_list)  # 指定用户的粉丝数
             follower_user_article_list = Article.objects.filter(author_id=follower_user_id)
             follower_user_article_num = len(follower_user_article_list)
-            follower_user_info_list.append({'当前用户名': follower_user_username, '当前用户id': follower_user_id,
-                                            '头像链接': follower_user_avatar_url,
-                                            '自我介绍': follower_user_self_introduction,
-                                            '关注数': follower_user_followed_user_num,
-                                            '粉丝数': follower_user_follower_user_num,
-                                            '文章数': follower_user_article_num})
+            follower_user_info_list.append({'currentUsername': follower_user_username, 'currentUserId': follower_user_id,
+                                            'avatarUrl': follower_user_avatar_url,
+                                            'selfIntroduction': follower_user_self_introduction,
+                                            'followerNum': follower_user_followed_user_num,
+                                            'fanNum': follower_user_follower_user_num,
+                                            'articleNum': follower_user_article_num})
         # 返回成功，并包含上述内容
-        return JsonResponse({'result': '获取粉丝列表成功', 'follower_user_info_list': follower_user_info_list})
+        print("获取粉丝列表成功")
+        return JsonResponse({'result': '获取粉丝列表成功', 'fans_user_info_list': follower_user_info_list})
 
     else:
         return JsonResponse({'result': '仅支持POST调用，获取粉丝列表失败'})
@@ -307,11 +309,15 @@ def get_user_info_by_id(request):
 
         current_user_str = current_user.username
 
+        #建立列表
+        current_user_info = ({ 'currentUserId': user_id, 'currentUsername': current_user_str,
+                             'avatarUrl': avatar_url,
+                             'selfIntroduction': self_introduction, 'followerNum': followed_user_num,
+                             'fanNum': follower_user_num, 'articleNum': article_num})
+
+
         # 返回成功，并包含上述内容
-        return JsonResponse({'result': '获取用户信息成功', '当前用户id': user_id, '当前用户名': current_user_str,
-                             '头像链接': avatar_url,
-                             '自我介绍': self_introduction, '关注数': followed_user_num,
-                             '粉丝数': follower_user_num, '文章数': article_num})
+        return JsonResponse({'result': '获取用户信息成功', 'current_user_info': current_user_info})
     else:
         return JsonResponse({'result': '仅支持POST调用，获取用户信息失败'})
 
