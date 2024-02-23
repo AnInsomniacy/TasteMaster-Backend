@@ -48,8 +48,10 @@ def follow_user(request):
                 current_user_data_linker.save()
 
                 # 返回成功，并且注明谁关注了谁
+                print("关注成功", current_user_str, "关注了", follow_user_id)
                 return JsonResponse(
                     {'result': '关注用户成功', 'current_user': current_user_str, 'follow_user': follow_user_id})
+
             except Exception as e:
                 return JsonResponse({'result': '关注用户失败', 'reason': '用户不存在'})
         else:
@@ -408,12 +410,17 @@ def is_followed(request):
             # 判断user_id是否在followed_user_name_list_str里
             user_id = int(user_id)
             if user_id in followed_user_id_list_str:
+                print(user_id,"已关注")
                 return JsonResponse({'isfollowed': True})
             else:
+                print(user_id,"未关注")
                 return JsonResponse({'isfollowed': False})
         else:
+            print("校验失败")
             return JsonResponse({'result': '获取用户信息失败', 'reason': validate_result[1]})
+
     else:
+        print("仅支持POST调用，获取用户信息失败")
         return JsonResponse({'result': '仅支持POST调用，获取用户信息失败'})
 
 
