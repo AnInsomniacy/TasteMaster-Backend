@@ -66,15 +66,17 @@ def show_articles(request):
         article_list_str = []
         for article in article_list:
             article_list_str.append(
-                {'文章id': article.article_id, '文章标题': article.title, '图片url': article.image_url,
-                 '文章内容': article.content,
-                 '文章作者': article.author_name,
-                 '创建时间': article.create_time, '更新时间': article.update_time})
+                {'article_id': article.article_id, 'article_title': article.title, 'image_url': article.image_url,
+                 'article_content': article.content,
+                 'article_author': article.author_name,
+                 'create_time': article.create_time, 'update_time': article.update_time})
 
-        # 返回成功，并且说明文章数目
+        # Return success and indicate the number of articles
         return JsonResponse(
-            {'result': '获取文章列表成功', '用户id': user.id, '用户名': user.username, '文章数': len(article_list_str),
-             '文章列表': article_list_str})
+            {'result': '成功获取文章信息', 'user_id': user.id, 'username': user.username,
+             'article_count': len(article_list_str),
+             'article_list': article_list_str})
+
 
     else:
         return JsonResponse({'result': '仅支持POST调用，获取文章列表失败'})
