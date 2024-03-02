@@ -8,7 +8,7 @@ class Article(models.Model):
     author_id = models.IntegerField()
     title = models.CharField(max_length=100)
     content = models.TextField()
-    image_url = models.CharField(max_length=500,default='https://img2.baidu.com/it/u=1337941324,845441152&fm=253&fmt=auto&app=138&f=JPEG?w=640&h=452')
+    image_url = models.CharField(max_length=5000,default='https://img2.baidu.com/it/u=1337941324,845441152&fm=253&fmt=auto&app=138&f=JPEG?w=640&h=452')
     create_time = models.DateTimeField(auto_now=True)
     update_time = models.DateTimeField(auto_now=True)
 

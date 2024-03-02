@@ -67,7 +67,6 @@ def show_articles(request):
         for article in article_list:
             article_list_str.append(
                 {'article_id': article.article_id, 'article_title': article.title, 'image_url': article.image_url,
-                 'article_content': article.content,
                  'article_author': article.author_name,
                  'create_time': article.create_time, 'update_time': article.update_time})
 
@@ -100,14 +99,14 @@ def show_article_by_id(request):
         article_update_time = article.update_time
 
         # 整合文章信息为列表
-        article_info = {'文章id': article_id, '作者id': article.author_id, '文章作者': article_author,
-                        '文章标题': article_title,
-                        '图片url': article.image_url,
-                        '文章内容': article_content, '创建时间': article_create_time,
-                        '更新时间': article_update_time}
+        article_info = {'article_id': article_id, 'author_id': article.author_id, 'author': article_author,
+                        'title': article_title,
+                        'article_img_url': article.image_url,
+                        'content': article_content, 'created_time': article_create_time,
+                        'updated_time': article_update_time}
 
         # 返回成功，并包含上述列表
-        return JsonResponse({'result': '获取文章成功', '文章信息': article_info})
+        return JsonResponse({'result': 'success', 'article_list': article_info})
     else:
         return JsonResponse({'result': '仅支持POST调用，获取文章失败'})
 
