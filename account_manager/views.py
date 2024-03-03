@@ -172,6 +172,7 @@ def get_current_user_info(request):
                                  'fanNum': follower_user_num, 'articleNum': article_num})
 
         else:
+            print("校验失败", validate_result[1])
             return JsonResponse({'result': '获取用户信息失败', 'reason': validate_result[1]})
     else:
         return JsonResponse({'result': '仅支持POST调用，获取用户信息失败'})
@@ -448,7 +449,8 @@ def modify_user_info(request):
             current_user_data_linker.self_introduction = self_introduction
             current_user_data_linker.save()
 
-            return JsonResponse({'result': '修改用户信息成功'})
+            print("新的头像链接:",avatar_url,"新的自我介绍:",self_introduction)
+            return JsonResponse({'result': 'success'})
         else:
             return JsonResponse({'result': '修改用户信息失败', 'reason': validate_result[1]})
     else:
