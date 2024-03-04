@@ -122,13 +122,12 @@ def get_random_ten_articles(request):
         article_list_str = []
         for article in article_list:
             article_list_str.append(
-                {'文章id': article.article_id, '文章标题': article.title, '图片url': article.image_url,
-                 '文章内容': article.content,
-                 '文章作者': article.author_name,
-                 '创建时间': article.create_time, '更新时间': article.update_time})
+                {'articleID': article.article_id, 'articleTitle': article.title, 'articleImageURL': article.image_url,
+                 'articleAuthor': article.author_name,
+                 'createTime': article.create_time, 'updateTime': article.update_time})
         # 返回成功，同时返回上述列表
         return JsonResponse(
-            {'result': '获取文章列表成功', '文章数目': len(article_list_str), '文章列表': article_list_str})
+            {'result': '获取文章列表成功', 'articleCount': len(article_list_str), 'articleList': article_list_str})
     else:
         return JsonResponse({'result': '仅支持GET调用，获取文章列表失败'})
 
