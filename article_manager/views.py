@@ -156,7 +156,7 @@ def update_article_by_id(request):
         article.content = article_content
         article.image_url = image_url
         article.save()
-        return JsonResponse({'result': '更新文章成功'})
+        return JsonResponse({'result': '更新文章成功', 'article_id': article_id, 'article_title': article_title,})
     else:
         return JsonResponse({'result': '仅支持POST调用，更新文章失败'})
 
@@ -177,7 +177,7 @@ def delete_article_by_id(request):
             return JsonResponse({'result': '文章作者不是当前用户，删除失败'})
         # 删除文章
         article.delete()
-        return JsonResponse({'result': '删除文章成功'})
+        return JsonResponse({'result': '删除文章成功', 'article_id': article_id})
     else:
         return JsonResponse({'result': '仅支持POST调用，删除文章失败'})
 

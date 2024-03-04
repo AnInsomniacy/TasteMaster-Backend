@@ -325,6 +325,48 @@ def get_user_info_by_id(request):
         return JsonResponse({'result': '仅支持POST调用，获取用户信息失败'})
 
 
+#根据username搜索用户，返回用户详细信息,如果部分匹配，返回所有匹配的用户
+def search_user_by_username(request):
+    username = request.POST.get('username')
+    if request.method == 'POST':
+        # 根据username获取用户
+        user_list = User.objects.filter(username__contains=username)
+        user_info_list = []
+        for user in user_list:
+            current_user_id = user.id
+            # 为current_user新建DataLinker对象，如果已存在，则不新建
+            current_user_data_linker = DataLinker.objects.get_or_create(user_id=current_user_id)[0]
+
+            # 获取用户信息avatar_url和self_introduction
+            avatar_url = current_user_data_linker.avatar_url
+            self_introduction = current_user_data_linker.self_introduction
+
+            # 获取用户的被关注数和关注数
+            followed_user_list = current_user_data_linker.followed_user_list.all()
+            followed_user_num = len(followed_user_list)  # 指定用户关注的用户数
+            follower_user_list = DataLinker.objects.filter(followed_user_list=current_user_id)
+            follower_user_num = len(follower_user_list)  # 指定用户的粉丝数
+
+            # 获取用户发布的文章数
+            article_list = Article.objects.filter(author_id=current_user_id)
+            article_num = len(article_list)
+
+            current_user_str = user.username
+
+            user_info_list.append({'currentUserId': current_user_id, 'currentUsername': current_user_str,
+                                  'avatarUrl': avatar_url,
+                                  'selfIntroduction': self_introduction, 'followerNum': followed_user_num,
+                                  'fanNum': follower_user_num, 'articleNum': article_num})
+
+        # 返回成功，并包含上述内容
+        return JsonResponse({'result': '获取用户信息成功', 'user_info_list': user_info_list})
+    else:
+        return JsonResponse({'result': '仅支持POST调用，获取用户信息失败'})
+
+
+
+
+
 # 输入一个数字user_num，返回user_num个用户的信息，按照粉丝数排序
 def get_user_info_by_follower_num(request):
     # 仅支持POST调用
