@@ -198,7 +198,6 @@ def search_article_by_keyword(request):
                 {'文章id': article.article_id, '文章标题': article.title, '作者id': article.author_id,
                  '文章作者': article.author_name,
                  '图片url': article.image_url,
-                 '文章内容': article.content,
                  '创建时间': article.create_time, '更新时间': article.update_time})
         # 返回成功，并且说明文章数目
         return JsonResponse(
