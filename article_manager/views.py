@@ -195,12 +195,12 @@ def search_article_by_keyword(request):
         article_list_str = []
         for article in article_list:
             article_list_str.append(
-                {'文章id': article.article_id, '文章标题': article.title, '作者id': article.author_id,
-                 '文章作者': article.author_name,
-                 '图片url': article.image_url,
-                 '创建时间': article.create_time, '更新时间': article.update_time})
+                {'articleID': article.article_id, 'articleTitle': article.title, 'authorID': article.author_id,
+                 'articleAuthor': article.author_name,
+                 'articleImageURL': article.image_url,
+                 'createTime': article.create_time, 'updateTime': article.update_time})
         # 返回成功，并且说明文章数目
         return JsonResponse(
-            {'result': '获取文章列表成功', '文章数': len(article_list_str), '文章列表': article_list_str})
+            {'result': '获取文章列表成功', 'articleCount': len(article_list_str), 'articleList': article_list_str})
     else:
         return JsonResponse({'result': '仅支持POST调用，获取文章列表失败'})
