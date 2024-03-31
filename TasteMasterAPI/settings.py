@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     'get_jwt',
     'account_manager',
     'article_manager',
-    'chatGPT_controller'
+    'chatGPT_controller',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
